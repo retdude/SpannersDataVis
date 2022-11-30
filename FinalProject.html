@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!--Import d3 and possible repo here for our js shenanigans-->
+        <script type = "text/javascript" src="https://d3js.org/d3.v7.min.js"></script>
+    </head>
+
+    <body>
+        <!--where our HTML code goes here-->
+        <svg  style= "width: 600; height: 480; border: 1px solidblack"></svg>
+
+
+        <!--JS D3 starts here-->
+        <script type="text/javascript"> 
+            let segments = [];
+            var lineCounter = 0;
+            d3.csv("graph_n50_p.5.csv", process);
+            function process(edge_list){
+                // creates a list of vertices where each vertex has elements of x and y coordinates
+                // cycles through all n vertices, gives each nth vertex two random coordinates and 
+                // puts the coordinates into the nth element of the vertex list
+                let vertices = {};
+                for(n = 0; n < 50; n++){
+                    var coordinates = new Array(3);
+                    coordinates[0] = randomNumber(10,590);
+                    coordinates[1] = randomNumber(10,470);
+                    vertices[n] = coordinates;
+                }
+                // creates stack of line segments using the vertexes and the list of edges from 
+                // the csv file. For each segment, includes both vertex n values of that edge connection
+                var segments = []
+                for(var i=0;i<edge_list.length;i++){
+                    var data = edge_list[i]
+                    let segmentInfo = new Array(2);
+                    var u = parseInt(data.vertex1);
+                    var v = parseInt(data.vertex2);
+                    var crd = {x1:vertices[u][0], y1:vertices[u][1], x2:vertices[v][0], y2:vertices[v][1]}
+                    segments.push(crd);
+                    lineCounter++;
+                }
+                console.log(segments);
+                createSVG(segments);
+            }; 
+
+            function createSVG(segments){
+                d3.select("svg") //enter SVG
+                    .selectAll("line") //Access list of lines
+                    .data(segments) //looping over data
+                    .enter()
+                    .insert("line", "g") //append a line
+                    .attr("class","line") 
+                    //.attr("d", line)
+                    .attr( "x1", (function(d) { return d.x1; })) //set starts
+                    .attr( "y1", (function(d) { return d.y1; }))
+                    .attr( "x2", (function(d) { return d.x2; })) //set ends
+                    .attr( "y2", (function(d) { return d.y2; }))
+                    .style("fill", "none") //do not fill line
+                    .style("stroke", "#CC0000") //set line color
+                    .style("stroke-width", "2"); //set line thickness 
+            }
+        </script>
+        <!--<button onclick="process(void)">Draw The Graph</button> -->
+    </body>
+</html>
