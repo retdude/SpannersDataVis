@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 const numVertices = 30;
 const p = .7;
 
@@ -9,6 +11,7 @@ class node{
         this.x = Math.random() * 600; //plots to svg coordinates
         this.y = Math.random() * 480;
         this.edges = []; //other nodes to which this node connects
+        this.edgeWeights = []; //weights corresponding to above array
     }
     //fill with attributes
     
@@ -38,6 +41,11 @@ function generateGraph(numVertices, p){ //creates the dataset
                 nodes[i].edges.push(j);
                 nodes[j].edges.push(i);
                 numEdges += 1;
+                var edgeWeight = Math.ceil(Math.random() * 15);
+
+                nodes[i].edgeWeights.push(edgeWeight);
+                nodes[j].edgeWeights.push(edgeWeight);
+
                 var randX = Math.random() * 600;
                 var randY = Math.random() * 480;
                 
@@ -71,12 +79,31 @@ function additiveSpannerFormula(unknown){
 
 
 
-function calculateWeight(node1, node2){ //distance formula
+/*function calculateWeight(node1, node2){ //distance formula
     var xinstance = node2.x - node1.x;
     var yinstance = node2.y - node1.y;
 
     var result = Math.sqrt((xinstance*xinstance)+(yinstance*yinstance));
     return result;
+}*/
+
+function createCSV(){
+    let fileName = "Graph.csv";
+    fs.writeFileSync(fileName, "id,x,y,edges\n");
+
+    for (var i = 0; i < nodes.length; i++){
+        fs.appendFileSync(fileName, nodes[i].id.toString());
+        fs.appendFileSync(fileName, ",");
+        fs.appendFileSync(fileName, nodes[i].x.toString());
+        fs.appendFileSync(fileName, ",");
+        fs.appendFileSync(fileName, nodes[i].y.toString());
+        fs.appendFileSync(fileName, ",");
+        fs.appendFileSync(fileName, nodes[i].edges.toString());
+        //fs.appendFileSync(fileName, ",");
+        //fs.appendFileSync(fileName, nodes[i].edgeWeights.toString());
+        fs.appendFileSync(fileName, "\n");
+    }
+
 }
 
 function removeEdgefromGraph(nodeID, edgeID){ //removes an edge (to be used for actual spanning)
@@ -84,23 +111,27 @@ function removeEdgefromGraph(nodeID, edgeID){ //removes an edge (to be used for 
     var index2 = nodes[edgeID].edges.indexOf(nodeID);
 
     nodes[nodeID].edges.splice(index1, 1);
+    nodes[nodeID].edgeWeights.splice(index1,1);
+
     nodes[edgeID].edges.splice(index2, 1);
+    nodes[edgeID].edgeWeights.splice(index2,1);
     
     
 }
 
 generateGraph(numVertices, p); 
-//console.log(nodes);
-console.log(nodes[0]);
-console.log(nodes[1]);
+console.log(nodes);
+//console.log(nodes[0]);
+//console.log(nodes[1]);
 
-console.log(calculateWeight(nodes[0], nodes[1]));
+//console.log(calculateWeight(nodes[0], nodes[1]));
 
 /* removeEdgefromGraph(0, 1);
 console.log(nodes[0]);
 console.log(nodes[1]);
  */
 
+createCSV();
 
 
 
@@ -113,88 +144,3 @@ console.log(nodes[1]);
 
 
 
-
-
-
-
-
-
-
-
-/*(async () => {
-    const {execute} = deployments
-    const { deployer } = await getNamedAccounts()
-    await execute('ExordiumOne', {from: deployer}, 'toggleActive')
-  })();
-  
-
-const fs = require("fs");
-const { parse } = require("csv-parse");
-//let edges = [];
-
-const node= {
-    //fill with attributes
-    number: 0,
-    x: 0,
-    y: 0,
-    edges: {},
-
-    applyAttributes: function(){
-        this.x = Math.random() * 580; //these values so that thhe coodinates
-        this.y = Math.random() * 420;//fit inside the SVG normally
-        this.edges = [];
-
-        return;
-    
-    }
-
-    
-}
-
-async function fillNodeData() {
-
-    let edges = [];
-
-    let promise = new Promise((resolve, reject) => {
-        fs.createReadStream("graph_n30_p.7.csv")
-            .pipe(parse({ delimiter: ",", from_line: 2 }))
-            .on("data", function (row) {
-                //console.log(row);
-                edges.push(row);
-                //alert(window.edges.push(row));
-            })
-            .on("error", function (error) {
-                reject("ERROR");
-            })
-            .on("end", function () {
-                resolve("Sucsess");
-            });
-    }); 
-
-    edges = await(promise); //await(edges);
-
-    let nodes = []; //await(node data);
-    
-
-    console.log(edges);
-    
-    
-    return Promise.resolve(1); //Change eventually
-    
-
-
-
-}
-  
-fillNodeData().then(console.log(edges)); // also to change
-
-
-
-
-
-
-
-
-//console.log(edges);
-//console.log(nodes);
-*/
