@@ -9,13 +9,14 @@ def main():
     isFinished = False
     G = handleCSV()
     H = nx.create_empty_copy(G, with_data=True) #creates edgeless graph copy
-
+    spanning(G,H)
     #testDisplay(G, isFinished)
     #testDisplay(H, isFinished)
 
     mst = nx.minimum_spanning_tree(G, weight='weight', algorithm='kruskal', ignore_nan=False)
 
     testDisplay(mst, isFinished)
+    H=spanning(G,H)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def handleCSV():
@@ -86,12 +87,13 @@ def spanning(G, H):
     add all the edges of the mst into h(spanner)
     apply the d-light weight initialization sort the neightbor edges for each node accorting to the sorted order, add them to h and sum the edge weights for each node
     keep adding the edges until the total sum is = D
-    spanner completion for each vertex try to add all edges in the shortest path if the spanner condition doesn't satisfy 
+    spanner completion for each vertex try to add all edges in the shortest path if the spanner condition doesn't satisfy
     """
 
     mst = nx.minimum_spanning_tree(G) #get mst of G
 
-
+    for u,v,d in H.edges(data=True):
+        H.add_edge(u,v,d)
 
     return(H)
 
