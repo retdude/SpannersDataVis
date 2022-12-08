@@ -2,13 +2,17 @@ import networkx as nx
 import csv
 import matplotlib.pyplot as plt #visualization
 import numpy as np
+import math
 
 def main():
     #Main Function
 
     isFinished = False
     G = handleCSV()
-    H = nx.create_empty_copy(G, with_data=True) #creates edgeless graph copy
+
+    #Creation of G_Prime which will then be passed into H
+    G_prime = scaleGraph(G) 
+    H = nx.create_empty_copy(G_prime, with_data=True) #creates edgeless graph copy
 
     #testDisplay(G, isFinished)
     #testDisplay(H, isFinished)
@@ -65,6 +69,51 @@ def testDisplay(G, isFinished):
         plt.savefig('end.png')
     
     plt.show() #remove in final
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def scaleGraph(G):
+    #Iterate through the nodes of the graph
+    #The creation of the G_prime is just a copy of G which we will use for parsing in H
+    G_prime = G.copy()
+    for (U,V) in G_prime.edges():
+        tempEdge = G.edge['weight']
+        if tempEdge > 1:
+            #Stores the end point for the scaling temporarily
+            LastVert = G_prime(U)
+            NewEdgeCount = (tempEdge.getWeight())/(math.ceil(tempEdge.getWeight()))
+            i = 0
+            while (i<NewEdgeCount,1):
+                #Rewriting U to be the new V until we hit the very end
+                G_prime.addnode(NewNode)
+                G_prime.add_edge(V,NewNode)
+                G_prime.remove_edge(U,V)
+                nx.set_edge_attributes(G_prime,(U,V),{"weight":NewEdgeCount})
+                if i == NewEdgeCount-1:
+                    G_prime.addedge(LastVert,V)
+
+    #Returns the scaled graph wtih all of the new nodes in between the old nodes of G
+    return G_prime
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+def dlightweightinit(G,d):
+    for V in G.nodes():
+        summation =0
+        for u in V.edges():
+            summation += u['weight']
+        if summation < 0:
+            while sum < d:
+                newWeight = math.rand()
+                v.add_edge({"weight":newWeight})
+                summation += newWeight
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""TODO: What even is dh in this scenario here?"""
+def SpannerCompletion(G, H):
+    for Uh,Vh in H:
+        for Ug, Vg in G:
+            if
+
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def equationCheck(G, H):
