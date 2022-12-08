@@ -112,7 +112,8 @@ def dlightweightinit(G,d):
 def SpannerCompletion(G, H):
     for Uh,Vh in H:
         for Ug, Vg in G:
-            if
+            #if
+            print()
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
