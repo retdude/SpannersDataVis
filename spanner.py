@@ -1,7 +1,7 @@
 import networkx as nx
 import csv
 import matplotlib.pyplot as plt #visualization
-import random as rand
+import numpy as np
 
 def main():
     #Main Function
@@ -9,7 +9,7 @@ def main():
     isFinished = False
     G = handleCSV()
     H = nx.create_empty_copy(G, with_data=True) #creates edgeless graph copy
-    spanning(G,H)
+
     #testDisplay(G, isFinished)
     #testDisplay(H, isFinished)
 
@@ -37,7 +37,7 @@ def setEdgeWeight(G):
     nx.set_edge_attributes(G, values = 1, name = 'weight')
 
     for u,v,d in G.edges(data=True):
-        d['weight']+= rand.randint(0,9)
+        d['weight']+= np.random.uniform(0, 10)
 
     
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -47,10 +47,13 @@ def testDisplay(G, isFinished):
     for u,v,d in G.edges(data=True):
         print(u,v,d)
 
-    print()
+    print("~~~~~~~~~~~~~~~~~")
 
-    print("Graph output:", G)
-    print("Size = ", G.size(weight="weight"))
+    print("Graph Output:", G)
+    print("Sum of Edge Weight = ", G.size(weight="weight"))
+
+    print("~~~~~~~~~~~~~~~~~")
+    print()
 
     pos = nx.spring_layout(G,scale=1)
     nx.draw(G, pos, with_labels=True)
@@ -82,19 +85,25 @@ def spanning(G, H):
     """  
     Pseudocode:
 
-    get mst of G
-    subdivide the edges
-    add all the edges of the mst into h(spanner)
+    get mst of G (DONE)
+    subdivide the edges (??)
+    add all the edges of the mst into h(spanner) (SORTA DONE)
     apply the d-light weight initialization sort the neightbor edges for each node accorting to the sorted order, add them to h and sum the edge weights for each node
     keep adding the edges until the total sum is = D
     spanner completion for each vertex try to add all edges in the shortest path if the spanner condition doesn't satisfy
     """
 
     mst = nx.minimum_spanning_tree(G) #get mst of G
+    sum = mst.size(weight="weight")
+    n = mst.number_of_nodes()
 
-    for u,v,d in H.edges(data=True):
-        H.add_edge(u,v,d)
+    for u,v,d in G.edges(data=True): #scaling
+        d['weight'] *= (n/2)*(1/sum)
+
+
 
     return(H)
+
+
 
 main()
