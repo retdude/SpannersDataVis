@@ -9,17 +9,12 @@ def main():
 
     isFinished = False
     G = handleCSV()
-
+    testDisplay(G, isFinished)
     #Creation of G_Prime which will then be passed into H
     G_prime = scaleGraph(G) 
     H = nx.create_empty_copy(G_prime, with_data=True) #creates edgeless graph copy
-
-    #testDisplay(G, isFinished)
-    #testDisplay(H, isFinished)
-
-    mst = nx.minimum_spanning_tree(G, weight='weight', algorithm='kruskal', ignore_nan=False)
-
-    testDisplay(mst, isFinished)
+    testDisplay(G_prime, isFinished)
+    testDisplay(H, isFinished)
     H=spanning(G,H)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -48,8 +43,8 @@ def setEdgeWeight(G):
 def testDisplay(G, isFinished):
     #the following creates a visual for test purposes
 
-    for u,v,d in G.edges(data=True):
-        print(u,v,d)
+    """"for u,v,d in G.edges(data=True):
+        print(u,v,d)"""
 
     print("~~~~~~~~~~~~~~~~~")
 
@@ -75,24 +70,38 @@ def scaleGraph(G):
     #Iterate through the nodes of the graph
     #The creation of the G_prime is just a copy of G which we will use for parsing in H
     G_prime = G.copy()
-    for (U,V) in G_prime.edges():
-        tempEdge = G.edge['weight']
-        if tempEdge > 1:
+    sum = G_prime.size(weight="weight")
+    n = G_prime.number_of_nodes()
+    for U,V in G_prime.edges():
+        tempEdge = G.get_edge_data(U,V, default=None)
+        newWeight = (n/2)*(1/sum)
+        LastVert = U
+        NewEdgeCount = (tempEdge['weight'])/(math.ceil(tempEdge['weight']))
+        if tempEdge['weight'] > 1:
             #Stores the end point for the scaling temporarily
-            LastVert = G_prime(U)
-            NewEdgeCount = (tempEdge.getWeight())/(math.ceil(tempEdge.getWeight()))
             i = 0
-            while (i<NewEdgeCount,1):
+            while (i<NewEdgeCount):
                 #Rewriting U to be the new V until we hit the very end
-                G_prime.addnode(NewNode)
-                G_prime.add_edge(V,NewNode)
-                G_prime.remove_edge(U,V)
-                nx.set_edge_attributes(G_prime,(U,V),{"weight":NewEdgeCount})
+                i+=1
+                createNewNode(G_prime, U,V, newWeight)
                 if i == NewEdgeCount-1:
-                    G_prime.addedge(LastVert,V)
+                    G_prime.addedge(LastVert,V,newWeight)
+                
+        else:
+            createNewNode(G_prime, U,V, newWeight)
 
     #Returns the scaled graph wtih all of the new nodes in between the old nodes of G
     return G_prime
+
+def createNewNode(G,U,V,d):
+    G.add_node(U)
+    G.add_edge(V,U)
+    #G.add_path([U,V])
+    #G.remove_edge(U,V)
+    G[U][V]['weight']=float(d)
+    print(G[U][V]['weight'])
+    #nx.set_edge_attributes(G,(U,V),{"weight":d})
+
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
