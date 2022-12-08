@@ -2,20 +2,25 @@ import networkx as nx
 import csv
 import matplotlib.pyplot as plt #visualization
 import numpy as np
+import math
 
 def main():
     #Main Function
 
     isFinished = False
     G = handleCSV()
-    H = nx.create_empty_copy(G, with_data=True) #creates edgeless graph copy
 
-    testDisplay(G, isFinished)
+    #Creation of G_Prime which will then be passed into H
+    G_prime = scaleGraph(G) 
+    H = nx.create_empty_copy(G_prime, with_data=True) #creates edgeless graph copy
+
+    #testDisplay(G, isFinished)
     #testDisplay(H, isFinished)
 
     mst = nx.minimum_spanning_tree(G, weight='weight', algorithm='kruskal', ignore_nan=False)
 
     testDisplay(mst, isFinished)
+    H=spanning(G,H)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def handleCSV():
@@ -66,6 +71,51 @@ def testDisplay(G, isFinished):
     plt.show() #remove in final
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def scaleGraph(G):
+    #Iterate through the nodes of the graph
+    #The creation of the G_prime is just a copy of G which we will use for parsing in H
+    G_prime = G.copy()
+    for (U,V) in G_prime.edges():
+        tempEdge = G.edge['weight']
+        if tempEdge > 1:
+            #Stores the end point for the scaling temporarily
+            LastVert = G_prime(U)
+            NewEdgeCount = (tempEdge.getWeight())/(math.ceil(tempEdge.getWeight()))
+            i = 0
+            while (i<NewEdgeCount,1):
+                #Rewriting U to be the new V until we hit the very end
+                G_prime.addnode(NewNode)
+                G_prime.add_edge(V,NewNode)
+                G_prime.remove_edge(U,V)
+                nx.set_edge_attributes(G_prime,(U,V),{"weight":NewEdgeCount})
+                if i == NewEdgeCount-1:
+                    G_prime.addedge(LastVert,V)
+
+    #Returns the scaled graph wtih all of the new nodes in between the old nodes of G
+    return G_prime
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+def dlightweightinit(G,d):
+    for V in G.nodes():
+        summation =0
+        for u in V.edges():
+            summation += u['weight']
+        if summation < 0:
+            while sum < d:
+                newWeight = math.rand()
+                v.add_edge({"weight":newWeight})
+                summation += newWeight
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""TODO: What even is dh in this scenario here?"""
+def SpannerCompletion(G, H):
+    for Uh,Vh in H:
+        for Ug, Vg in G:
+            if
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def equationCheck(G, H):
     #this function is responsible for determining if the equation holds true
 
@@ -89,7 +139,7 @@ def spanning(G, H):
     add all the edges of the mst into h(spanner) (SORTA DONE)
     apply the d-light weight initialization sort the neightbor edges for each node accorting to the sorted order, add them to h and sum the edge weights for each node
     keep adding the edges until the total sum is = D
-    spanner completion for each vertex try to add all edges in the shortest path if the spanner condition doesn't satisfy 
+    spanner completion for each vertex try to add all edges in the shortest path if the spanner condition doesn't satisfy
     """
 
     mst = nx.minimum_spanning_tree(G) #get mst of G
@@ -99,22 +149,6 @@ def spanning(G, H):
     for u,v,d in G.edges(data=True): #scaling
         d['weight'] *= (n/2)*(1/sum)
 
-
-    for u,v,d in G.edges(data=True): #subdivision w(e) / ceiling(w(e))
-        #iterate through all the edges, if > 1: split each edge into mini edges and then fill those gaps with nodes
-        #then add those mini edges and nodes to H
-        #if <= 1, add anyway
-
-        print()
-
-    #d- light weight
-    #add mst to H, then add edges from g' until the sum <= d
-
-    #spanner completion
-    #take each pair of vertex, calc the shortest path from u,v in H and u,v in G' check how much larger is H
-    #if it is a lot larger and doesn't satisfy the equation, add all the edges into H from G' (for u,v)
-    #do until this has been done for all vertex pairs
-    #if there is a pair that is not in H but in G', then just add from G' to H
 
 
     return(H)
