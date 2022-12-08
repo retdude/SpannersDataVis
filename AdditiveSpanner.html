@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<head>
+    <script type = "text/javascript" src="https://d3js.org/d3.v7.min.js"></script>
+    
+    <style>
+        .special_div{
+            position: relative;
+            left: 20px;
+        }
+</style>
+
+</head>
+
+<body>
+    <div> <!-- Header -->
+        <h1 style="background-color: black; color: white; line-height: 75px; align-content: center; text-align: center;">Lightweight Additive Spanner
+        </h1>
+    </div>
+
+    <div>
+        <!--<svg height = "600" width = "600">
+
+        </svg>-->
+
+        <img src = "Lobster.jpg" id="graph">
+        
+
+    </div>
+
+    <button onclick="changeImg()"> Span this Graph
+        <!-- Func to change png-->
+    </button>
+
+
+    <script>
+        //create func to chnage photo
+        function changeImg(){
+
+
+            //d3.selectAll("img").remove();
+            document.getElementById("graph").src = "Drewski.jpg"
+
+           
+
+        }
+    </script>
+
+    
+</body>
+
+</html>
