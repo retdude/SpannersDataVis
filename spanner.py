@@ -132,7 +132,7 @@ def dLightWeight(GScaled, Gprime, H):
 
     sum = 0
     n = Gprime.number_of_nodes()
-    dWeight = n ** (2/3)
+    dWeight = n ** (2/3) #this determines the density of the edges
     print(dWeight)
 
     if(dWeight > 0):
