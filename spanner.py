@@ -13,15 +13,19 @@ def main():
 
     testDisplay(G, isFinished) #gets starting graph image
 
-    Gprime = scaleGraph(G) #creates G'
+    GScaled = scaleGraph(G)  
+    mst = nx.minimum_spanning_tree(G, weight='weight', algorithm='kruskal', ignore_nan=False)
+    Gprime = scaleGraph(mst) #takes the mst G and makes G'
 
     subdivideGraph(Gprime, H)
+    dLightWeight(GScaled, Gprime, H)
+    spannerCompletion(H, Gprime)
 
-    testDisplay(Gprime, isFinished)
+    isFinished = True
+
     testDisplay(H, isFinished)
     
-
-    print("DONE")
+    print("Spanning Complete")
    
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -43,7 +47,7 @@ def setEdgeWeight(G):
     nx.set_edge_attributes(G, values = 1, name = 'weight')
 
     for u,v,d in G.edges(data=True):
-        d['weight']+= round(np.random.uniform(0, 50), 2)
+        d['weight']+= np.random.uniform(0, 100)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def nodeCreation(G):
@@ -88,16 +92,13 @@ def testDisplay(G, isFinished):
 def scaleGraph(G):
     #Iterate through the nodes of the graph and scale each edge weight to (n/2)*(1/sum)
 
-    Gprime = nx.minimum_spanning_tree(G, weight='weight', algorithm='kruskal', ignore_nan=False) #takes the mst of the spanned G'
+    sum = G.size(weight="weight")
+    n = G.number_of_nodes()
 
-    sum = Gprime.size(weight="weight")
-    n = Gprime.number_of_nodes()
-     
+    for u,v,d in G.edges(data=True): #scaling
+        d['weight'] *= ((n/2) * (1/sum))
 
-    for u,v,d in Gprime.edges(data=True): #scaling
-        d['weight'] *= round(((n/2) * (1/sum)), 2)
-
-    return(Gprime)
+    return(G)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def subdivideGraph(Gprime, H):
@@ -109,57 +110,55 @@ def subdivideGraph(Gprime, H):
     for u,v,d in Gprime.edges(data=True): #subdivision w(e) / ceiling(w(e))
         if(d['weight'] > 1):
             newEdgeCount = round((d['weight']) / (math.ceil(d['weight'])))
-            print(newEdgeCount)
             newEdgeWeight = (d['weight']) / (newEdgeCount)
-            print(newEdgeWeight)
             lastNode = u
 
             for i in range(newEdgeCount):
                 tempNode = nodeCreation(H)
-                H.add_node(tempNode, weight=newEdgeWeight)
-                H.add_edge(lastNode, tempNode)
+                H.add_node(tempNode)
+                H.add_edge(lastNode, tempNode, weight=newEdgeWeight)
                 lastNode = tempNode
                 print("adding")
 
-            H.add_edge(lastNode, v) #completes the chain
+            H.add_edge(lastNode, v, weight = newEdgeWeight) #completes the chain
 
         else:
             H.add_edge(u,v, weight = d['weight'])
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def dLightWeight():
+def dLightWeight(GScaled, Gprime, H):
     #add mst to H, then add edges from g' until the sum <= d
+    #d = n^(2/3)
 
-    print('incomplete')
+    sum = 0
+    n = Gprime.number_of_nodes()
+    dWeight = n ** (2/3)
+    print(dWeight)
 
+    if(dWeight > 0):
+        for u,v,d in GScaled.edges(data=True):
+            if((sum + d['weight']) > dWeight):
+                print("break")
+                break
+            elif(not H.has_edge(u,v)):
+                H.add_edge(u,v, weight = d['weight'])
+                sum += d['weight']
+                print("added")
+            
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def spannerCompletion():
+def spannerCompletion(H, Gprime):
     #take each pair of vertex, calc the shortest path from u,v in H and u,v in G' check how much larger is H
     #if it is a lot larger and doesn't satisfy the equation, add all the edges into H from G' (for u,v)
     #do until this has been done for all vertex pairs
     #if there is a pair that is not in H but in G', then just add from G' to H
 
-    print('incomplete')
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def spanning(G, H):
-    #this function handles the for loop that adds edges to the edgless graph using the MST
-
-    """  
-    Pseudocode:
-
-    get mst of G (DONE)
-    subdivide the edges (??)
-    add all the edges of the mst into h(spanner) (SORTA DONE)
-    apply the d-light weight initialization sort the neightbor edges for each node accorting to the sorted order, add them to h and sum the edge weights for each node
-    keep adding the edges until the total sum is = D
-    spanner completion for each vertex try to add all edges in the shortest path if the spanner condition doesn't satisfy 
-    """
-
-    mst = nx.minimum_spanning_tree(G) #get mst of G
-    
-    return(H)
-
+    for u,v,d in Gprime.edges(data=True):
+        if((not H.has_edge(u,v))):
+            H.add_edge(u,v, weight = d['weight'])
+        elif(H[u][v]["weight"] > Gprime[u][v]["weight"]):
+            H.remove_edge(u,v)
+            H.add_edge(u,v, weight = d['weight'])
+            print("replace")
 
 
 main()
